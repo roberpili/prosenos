@@ -1,37 +1,63 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.domain.schemas.game import ExternalNBAGame
 
 
-class GoalData(BaseModel):
+# shared
+class Status(BaseModel):
+    name: str
+
+
+class BaseTeam(BaseModel):
+    name: str
+
+
+# futbol ones
+class GoalEvent(BaseModel):
     player_name: str
-    time_to_display: str
-    goal_type: str | None = None
+    time_to_display: str | None = None
+    own_goal: bool = False
+    penalty: bool = False
 
 
-class TeamData(BaseModel):
-    name: str
-    goals: list[GoalData] = []
+class FutbolTeam(BaseTeam):
+    goals: list[GoalEvent] = Field(default_factory=list)
 
 
-class StatusData(BaseModel):
-    name: str
-
-
-class GameData(BaseModel):
+# game data
+class FutbolGameData(BaseModel):
     id: str
-    teams: tuple[TeamData, TeamData]
-    scores: list[int] | None = None
+    status: Status
+    start_time: str | None = None
+    scores: list[int | None] = Field(default_factory=list)
+    teams: tuple[FutbolTeam, FutbolTeam]
     agg_scores: list[int] | None = None
     penalties: list[int] | None = None
-    to_qualify: int | None = None
     game_time: int | None = None
+    to_qualify: str | None = None
+
+
+class NBAGameData(BaseModel):
+    id: str
+    status: Status
     start_time: str | None = None
-    status: StatusData
+    scores: list[int | None] = Field(default_factory=list)
+    teams: tuple[BaseTeam, BaseTeam]
+    quarter: int | None = None
+    clock: str | None = None
+    overtime: bool | None = None
+    season_status: str | None = None
 
 
-class LeagueData(BaseModel):
+# response models
+class FutbolLeague(BaseModel):
     url_name: str
-    games: list[GameData]
+    games: list[FutbolGameData]
 
 
-class ExternalMatchesResponse(BaseModel):
-    leagues: list[LeagueData]
+class FutbolMatchesResponse(BaseModel):
+    leagues: list[FutbolLeague]
+
+
+class NBAScoreboardResponse(BaseModel):
+    events: list[ExternalNBAGame] = Field(default_factory=list)

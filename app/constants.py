@@ -2,8 +2,6 @@ from zoneinfo import ZoneInfo
 
 MATCH_TIMEZONE = ZoneInfo("UTC")
 
-GOAL_LABELS = {"E.C": "EC", "Pen": "P"}
-
 
 LEAGUES = {
     # ligas

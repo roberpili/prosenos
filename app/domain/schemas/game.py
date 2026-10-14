@@ -1,33 +1,33 @@
-from datetime import datetime
 from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class Game(BaseModel):
-    id: int
-    external_id: str
-    sport: str
-    league: str
+class ExternalNBAGame(BaseModel):
+    id: str
+    date: str
+    name: str | None = None
+    competitions: list[dict[str, object]] = Field(default_factory=list)
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
+
+
+class NBAScraperGame(BaseModel):
+    id: str
+    season_staus: str | None = None
     home_team: str
     away_team: str
-    home_score: int | None
-    away_score: int | None
+    home_score: int | None = None
+    away_score: int | None = None
     status: str
-    minute: int | None
-    played_at: datetime | None
-    agg_home_score: int | None = None
-    agg_away_score: int | None = None
-    home_penalties: int | None = None
-    away_penalties: int | None = None
-    qualifies: int | None = None
-    home_scorers: list[str] = []
-    away_scorers: list[str] = []
+    quarter: int | None = None
+    kickoff: str | None = None
+    clock: str | None = None
+    overtime: bool | None = None
 
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
-class ScraperGame(BaseModel):
+class FutbolScraperGame(BaseModel):
     id: str
     league: str
     home_team: str
@@ -41,6 +41,7 @@ class ScraperGame(BaseModel):
     agg_away_score: int | None = None
     home_penalties: int | None = None
     away_penalties: int | None = None
-    qualifies: int | None = None
     home_scorers: list[str] = []
     away_scorers: list[str] = []
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
