@@ -1,14 +1,14 @@
-from app.domain.schemas.game import ScraperGame
+from app.domain.schemas.game import FutbolScraperGame
 
 
-def check_if_finished(match: ScraperGame) -> bool:
+def check_if_finished(match: FutbolScraperGame) -> bool:
     has_scores = match.home_score is not None and match.away_score is not None
 
     if match.status == "finished":
         return has_scores
 
-    if match.status == "Por penales":
-        return has_scores and match.qualifies is not None and match.qualifies > 0
+    # if match.status == "Por penales":
+    #     return has_scores and match.qualifies is not None and match.qualifies > 0
 
     return False
 

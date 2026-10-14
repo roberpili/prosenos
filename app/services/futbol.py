@@ -1,38 +1,15 @@
 import asyncio
-import logging
-from datetime import UTC, date, datetime, timedelta
 
-from fastapi import HTTPException, status
-
-from app.core.futbol import get_matches_by_date
-from app.domain.schemas.game import ScraperGame
-from app.domain.schemas.match import Match
-from app.services.connection_manager import manager
-
-logger = logging.getLogger(__name__)
-POLL_INTERVAL = 15
-
-_DATE_FORMAT = "%d-%m-%Y"
+from app.core.futbol import get_futbol_matches_by_date
+from app.domain.enums import Sport
+from app.domain.schemas.game import FutbolScraperGame
+from app.domain.schemas.match import FutbolMatch
+from app.helpers import resolve_date
+from app.services.poller import poll_live
 
 
-def _resolve_date(day: str) -> date:
-    if day == "yesterday":
-        return datetime.now(UTC).date() - timedelta(days=1)
-
-    if day == "today":
-        return datetime.now(UTC).date()
-
-    try:
-        return datetime.strptime(day, _DATE_FORMAT).date()
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Use date format: DD-MM-YYYY (e.g. 06-07-2026 or 06/07/2026)",
-        ) from None
-
-
-def _to_scraper_game(match: Match) -> ScraperGame:
-    return ScraperGame(
+def _to_futbol_scraper_game(match: FutbolMatch) -> FutbolScraperGame:
+    return FutbolScraperGame(
         id=match.id,
         league=match.league,
         home_team=match.home_team,
@@ -46,31 +23,16 @@ def _to_scraper_game(match: Match) -> ScraperGame:
         agg_away_score=match.agg_away_score,
         home_penalties=match.home_penalties,
         away_penalties=match.away_penalties,
-        qualifies=match.qualifies,
         home_scorers=match.home_scorers,
         away_scorers=match.away_scorers,
     )
 
 
-async def get_matches(day: str) -> list[ScraperGame]:
-    target_date = _resolve_date(day)
-    matches = await asyncio.to_thread(get_matches_by_date, target_date)
-    return [_to_scraper_game(match) for match in matches]
+async def get_futbol_matches(day: str) -> list[FutbolScraperGame]:
+    target_date = resolve_date(day)
+    matches = await asyncio.to_thread(get_futbol_matches_by_date, target_date)
+    return [_to_futbol_scraper_game(match) for match in matches]
 
 
 async def poll_live_futbol_matches() -> None:
-    previous: list[ScraperGame] = []
-
-    while True:
-        try:
-            current = await get_matches("today")
-
-            if current != previous:
-                payload = [game.model_dump(mode="json") for game in current]
-                await manager.broadcast({"type": "live_update", "matches": payload})
-                previous = current
-
-        except Exception:
-            logger.exception("live poll failed")
-
-        await asyncio.sleep(POLL_INTERVAL)
+    await poll_live(Sport.FUTBOL, lambda: get_futbol_matches("today"))
