@@ -1,5 +1,5 @@
 import asyncio
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
@@ -7,16 +7,20 @@ from fastapi import FastAPI
 from app.api.router import router as futbol_router
 from app.core.config import settings
 from app.services.futbol import poll_live_futbol_matches
+from app.services.nba import poll_live_nba_matches
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    poll_task = asyncio.create_task(poll_live_futbol_matches())
+    tasks = [
+        asyncio.create_task(poll_live_futbol_matches()),
+        asyncio.create_task(poll_live_nba_matches()),
+    ]
     yield
 
-    _ = poll_task.cancel()
-    with suppress(asyncio.CancelledError):
-        await poll_task
+    for t in tasks:
+        _ = t.cancel()
+    _ = await asyncio.gather(*tasks, return_exceptions=True)
 
 
 app = FastAPI(title=settings.APP_TITLE, lifespan=lifespan)
