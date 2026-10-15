@@ -20,7 +20,7 @@ class FutbolMatch(Match):
     agg_away_score: int | None
     home_penalties: int | None
     away_penalties: int | None
-    qualifies: str | None
+    # qualifies: str | None
     home_scorers: list[str]
     away_scorers: list[str]
 

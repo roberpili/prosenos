@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from app.api.router import router as futbol_router
+from app.api.router import router
 from app.core.config import settings
 from app.services.futbol import poll_live_futbol_matches
 from app.services.nba import poll_live_nba_matches
@@ -24,7 +24,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title=settings.APP_TITLE, lifespan=lifespan)
-app.include_router(futbol_router)
+app.include_router(router)
 
 
 def main() -> None:

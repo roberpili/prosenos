@@ -34,7 +34,7 @@ class FutbolGameData(BaseModel):
     agg_scores: list[int] | None = None
     penalties: list[int] | None = None
     game_time: int | None = None
-    to_qualify: str | None = None
+    # to_qualify: str | None = None
 
 
 class NBAGameData(BaseModel):

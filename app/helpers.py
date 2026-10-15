@@ -23,7 +23,7 @@ def to_int_pair(values: Sequence[int | None] | None) -> tuple[int | None, int | 
 
 def format_scorers(team: FutbolTeam) -> list[str]:
     return [
-        f"({g.player_name}) {g.time_to_display}"
+        f"{g.player_name} {g.time_to_display}"
         + (" (og)" if getattr(g, "own_goal", False) else "")
         + (" (pen" if getattr(g, "penalty", False) else "")
         for g in team.goals

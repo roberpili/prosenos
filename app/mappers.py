@@ -35,7 +35,7 @@ def map_futbol_match(game: FutbolGameData, league_name: str) -> FutbolMatch:
         agg_away_score=agg_away_score,
         home_penalties=home_penalties,
         away_penalties=away_penalties,
-        qualifies=game.to_qualify,
+        # qualifies=game.to_qualify,
         home_scorers=format_scorers(home_team),
         away_scorers=format_scorers(away_team),
     )
