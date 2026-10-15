@@ -123,7 +123,6 @@ async def test_conversion_preserves_fields():
     game = nba_service._to_nba_scraper_game(match)
 
     assert game.id == match.id
-    assert game.confederation == match.confederation
     assert game.season_staus == match.season_status
     assert game.home_team == match.home_team
     assert game.away_team == match.away_team
@@ -132,8 +131,8 @@ async def test_conversion_preserves_fields():
     assert game.status == match.status
     assert game.kickoff == (match.kickoff.isoformat() if match.kickoff else None)
     assert game.quarter == match.quarter
-    assert game.agg_home_games == match.agg_home_games
-    assert game.agg_away_games == match.agg_away_games
+    assert game.clock == match.clock
+    assert game.overtime == match.overtime
 
 
 @pytest.mark.asyncio
