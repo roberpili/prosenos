@@ -7,21 +7,21 @@ router = APIRouter(prefix="/api/v1/futbol/matches", tags=["futbol_matches"])
 
 
 @router.get("/yesterday")
-async def yesterday_matches() -> list[FutbolScraperGame]:
+async def yesterday_futbol_matches() -> list[FutbolScraperGame]:
     return await get_futbol_matches("yesterday")
 
 
 @router.get("/tomorrow")
-async def tomorrow_matches() -> list[FutbolScraperGame]:
+async def tomorrow_futbol_matches() -> list[FutbolScraperGame]:
     return await get_futbol_matches("tomorrow")
 
 
 @router.get("/today")
-async def today_matches() -> list[FutbolScraperGame]:
+async def today_futbol_matches() -> list[FutbolScraperGame]:
     return await get_futbol_matches("today")
 
 
 @router.get("/{day:path}")
-async def matches(day: str) -> list[FutbolScraperGame]:
+async def futbol_matches(day: str) -> list[FutbolScraperGame]:
     day = day.replace("/", "-")
     return await get_futbol_matches(day)
