@@ -20,6 +20,7 @@ LEAGUES = {
     "copa-argentina",
     "super-copa-international",
     "copa-del-rey",
+    "efl-cup",
     # nations
     "Mundial",
     "friendly-international",
