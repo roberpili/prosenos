@@ -4,7 +4,7 @@ from typing import cast
 
 from fastapi import HTTPException, status
 
-from app.constants import ARGENTINA_TZ, MATCH_TIMEZONE
+from app.constants import ARGENTINA_TZ
 from app.domain.schemas.data import FutbolTeam
 
 _DATE_FORMAT = "%d-%m-%Y"
@@ -39,11 +39,12 @@ def parse_nba_kickoff(value: str) -> datetime:
 
 
 def parse_futbol_kickoff(value: str) -> datetime:
-    return datetime.strptime(value, "%d-%m-%Y %H:%M").replace(tzinfo=ARGENTINA_TZ)
+    local = datetime.strptime(value, "%d-%m-%Y %H:%M").replace(tzinfo=ARGENTINA_TZ)
+    return local.astimezone(UTC)
 
 
 def resolve_date(day: str) -> date:
-    today = datetime.now(MATCH_TIMEZONE).date()
+    today = datetime.now(ARGENTINA_TZ).date()
     offsets = {"yesterday": -1, "today": 0, "tomorrow": 1}
 
     if day in offsets:
