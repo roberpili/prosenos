@@ -1,10 +1,10 @@
 import asyncio
 import logging
 from datetime import date, datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException, status
 
+from app.constants import ARGENTINA_TZ
 from app.core.nba import get_nba_matches_by_date
 from app.domain.enums import Sport
 from app.domain.schemas.game import NBAScraperGame
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 POLL_INTERVAL = 15
 
 _DATE_FORMAT = "%d-%m-%Y"
-ARGENTINA_TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 
 
 def _resolve_date(day: str) -> date:

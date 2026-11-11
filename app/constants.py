@@ -1,6 +1,7 @@
 from zoneinfo import ZoneInfo
 
 MATCH_TIMEZONE = ZoneInfo("UTC")
+ARGENTINA_TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 
 
 LEAGUES = {
