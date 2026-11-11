@@ -1,46 +1,17 @@
 import asyncio
 import logging
-from datetime import date, datetime, timedelta
 
-from fastapi import HTTPException, status
-
-from app.constants import ARGENTINA_TZ
 from app.core.nba import get_nba_matches_by_date
 from app.domain.enums import Sport
 from app.domain.schemas.game import NBAScraperGame
 from app.domain.schemas.match import NBAMatch
+from app.helpers import resolve_date
 from app.services.poller import poll_live
 
 logger = logging.getLogger(__name__)
 POLL_INTERVAL = 15
 
 _DATE_FORMAT = "%d-%m-%Y"
-
-
-def _resolve_date(day: str) -> date:
-    today = datetime.now(ARGENTINA_TZ).date()
-    if day == "yesterday":
-        return today - timedelta(days=1)
-
-    if day == "tomorrow":
-        return today + timedelta(days=1)
-
-    if day == "today":
-        return today
-
-    normalized = day.replace("/", "-")
-
-    try:
-        return (
-            datetime.strptime(normalized, _DATE_FORMAT)
-            .replace(tzinfo=ARGENTINA_TZ)
-            .date()
-        )
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Use date format: DD-MM-YYYY (e.g. 06-07-2026 or 06/07/2026)",
-        ) from None
 
 
 def _to_nba_scraper_game(match: NBAMatch) -> NBAScraperGame:
@@ -60,7 +31,7 @@ def _to_nba_scraper_game(match: NBAMatch) -> NBAScraperGame:
 
 
 async def get_nba_matches(day: str) -> list[NBAScraperGame]:
-    target_date = _resolve_date(day)
+    target_date = resolve_date(day)
     matches = await asyncio.to_thread(get_nba_matches_by_date, target_date)
     return [_to_nba_scraper_game(match) for match in matches]
 
