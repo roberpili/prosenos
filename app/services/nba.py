@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException, status
 
@@ -14,22 +15,28 @@ logger = logging.getLogger(__name__)
 POLL_INTERVAL = 15
 
 _DATE_FORMAT = "%d-%m-%Y"
+ARGENTINA_TZ = ZoneInfo("America/Argentina/Buenos_Aires")
 
 
 def _resolve_date(day: str) -> date:
+    today = datetime.now(ARGENTINA_TZ).date()
     if day == "yesterday":
-        return datetime.now(UTC).date() - timedelta(days=1)
+        return today - timedelta(days=1)
 
     if day == "tomorrow":
-        return datetime.now(UTC).date() + timedelta(days=1)
+        return today + timedelta(days=1)
 
     if day == "today":
-        return datetime.now(UTC).date()
+        return today
 
     normalized = day.replace("/", "-")
 
     try:
-        return datetime.strptime(normalized, _DATE_FORMAT).replace(tzinfo=UTC).date()
+        return (
+            datetime.strptime(normalized, _DATE_FORMAT)
+            .replace(tzinfo=ARGENTINA_TZ)
+            .date()
+        )
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
