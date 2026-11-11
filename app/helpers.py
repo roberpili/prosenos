@@ -39,8 +39,14 @@ def parse_nba_kickoff(value: str) -> datetime:
 
 
 def parse_futbol_kickoff(value: str) -> datetime:
+    print(f"backend raw: {repr(value)}")
+
     local = datetime.strptime(value, "%d-%m-%Y %H:%M").replace(tzinfo=ARGENTINA_TZ)
-    return local.astimezone(UTC)
+    print(f"backend parsed local: {local}")
+
+    utc_result = local.astimezone(UTC)
+    print(f"backend parsed utc: {utc_result.isoformat()}")
+    return utc_result
 
 
 def resolve_date(day: str) -> date:
