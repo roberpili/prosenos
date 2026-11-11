@@ -80,7 +80,7 @@ async def test_keyword_route_fetches_expected_date(client, monkeypatch, route, d
     target = date(2026, 10, 9)
     resolve_date = MagicMock(return_value=target)
     fetch_json = MagicMock(return_value=make_payload())
-    monkeypatch.setattr("app.services.nba._resolve_date", resolve_date)
+    monkeypatch.setattr("app.services.nba.resolve_date", resolve_date)
     monkeypatch.setattr("app.core.nba.fetch_json", fetch_json)
 
     response = await client.get(f"/api/v1/nba/matches/{route}")

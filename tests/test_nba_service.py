@@ -1,10 +1,11 @@
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException
 
 import app.services.nba as nba_service
+from app.constants import ARGENTINA_TZ
 from app.domain.enums import Sport
 from app.domain.schemas.game import NBAScraperGame
 from app.domain.schemas.match import NBAMatch
@@ -47,29 +48,29 @@ def make_game(**overrides):
 
 
 def test_resolve_date_today():
-    resolved = nba_service._resolve_date("today")
+    resolved = nba_service.resolve_date("today")
 
-    assert resolved == datetime.now(UTC).date()
+    assert resolved == datetime.now(ARGENTINA_TZ).date()
 
 
 def test_resolve_date_yesterday():
-    resolved = nba_service._resolve_date("yesterday")
+    resolved = nba_service.resolve_date("yesterday")
 
-    assert resolved == datetime.now(UTC).date() - timedelta(days=1)
+    assert resolved == datetime.now(ARGENTINA_TZ).date() - timedelta(days=1)
 
 
 def test_resolve_date_explicit_hyphenated():
-    assert nba_service._resolve_date("06-07-2026") == date(2026, 7, 6)
+    assert nba_service.resolve_date("06-07-2026") == date(2026, 7, 6)
 
 
 def test_resolve_date_explicit_slashed():
-    assert nba_service._resolve_date("06/07/2026") == date(2026, 7, 6)
+    assert nba_service.resolve_date("06/07/2026") == date(2026, 7, 6)
 
 
 def test_resolve_date_invalid_raises_http_exception():
     for value in ("garbage", "06.07.2026", "2026-07-06"):
         with pytest.raises(HTTPException) as exc_info:
-            nba_service._resolve_date(value)
+            nba_service.resolve_date(value)
         assert exc_info.value.status_code == 400
 
 
@@ -78,7 +79,7 @@ async def test_get_nba_matches_resolves_date_and_maps_results(monkeypatch):
     target = date(2026, 10, 9)
     raw = [MagicMock(), MagicMock()]
 
-    monkeypatch.setattr(nba_service, "_resolve_date", MagicMock(return_value=target))
+    monkeypatch.setattr(nba_service, "resolve_date", MagicMock(return_value=target))
     monkeypatch.setattr(
         nba_service, "get_nba_matches_by_date", MagicMock(return_value=raw)
     )
@@ -88,14 +89,14 @@ async def test_get_nba_matches_resolves_date_and_maps_results(monkeypatch):
 
     result = await nba_service.get_nba_matches("today")
 
-    nba_service._resolve_date.assert_called_once_with("today")
+    nba_service.resolve_date.assert_called_once_with("today")
     nba_service.get_nba_matches_by_date.assert_called_once_with(target)
     assert result == [f"game-{id(match)}" for match in raw]
 
 
 @pytest.mark.asyncio
 async def test_get_nba_matches_empty(monkeypatch):
-    monkeypatch.setattr(nba_service, "_resolve_date", lambda _: date(2026, 10, 9))
+    monkeypatch.setattr(nba_service, "resolve_date", lambda _: date(2026, 10, 9))
     monkeypatch.setattr(nba_service, "get_nba_matches_by_date", lambda _: [])
 
     assert await nba_service.get_nba_matches("today") == []
@@ -104,7 +105,7 @@ async def test_get_nba_matches_empty(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_nba_matches_raises_when_scraper_fails(monkeypatch):
     monkeypatch.setattr(
-        nba_service, "_resolve_date", MagicMock(return_value=date(2026, 10, 9))
+        nba_service, "resolve_date", MagicMock(return_value=date(2026, 10, 9))
     )
     monkeypatch.setattr(
         nba_service,

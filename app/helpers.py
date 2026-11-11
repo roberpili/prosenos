@@ -1,5 +1,6 @@
+import os
 from collections.abc import Sequence
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import cast
 
 from fastapi import HTTPException, status
@@ -39,13 +40,16 @@ def parse_nba_kickoff(value: str) -> datetime:
 
 
 def parse_futbol_kickoff(value: str) -> datetime:
-    print(f"backend raw: {repr(value)}")
+    print(f"backend raw: {value!r}")
+    print(f"system tz: {time.tzname}, TZ env: {os.environ.get('TZ')!r}")
+    print(f"ARGENTINA_TZ: {ARGENTINA_TZ!r}")
 
-    local = datetime.strptime(value, "%d-%m-%Y %H:%M").replace(tzinfo=ARGENTINA_TZ)
-    print(f"backend parsed local: {local}")
+    naive = datetime.strptime(value, "%d-%m-%Y %H:%M")
+    local = naive.replace(tzinfo=ARGENTINA_TZ)
+    print(f"parsed local: {local.isoformat()} (offset {local.utcoffset()})")
 
     utc_result = local.astimezone(UTC)
-    print(f"backend parsed utc: {utc_result.isoformat()}")
+    print(f"parsed utc: {utc_result.isoformat()}")
     return utc_result
 
 

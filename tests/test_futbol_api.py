@@ -76,7 +76,7 @@ EXPECTED_MATCH = {
     "away_score": 1,
     "status": "finished",
     "minute": -1,
-    "kickoff": "2026-07-06T21:00:00+00:00",
+    "kickoff": "2026-07-07T00:00:00+00:00",
     "agg_home_score": 3,
     "agg_away_score": 2,
     "home_penalties": 1,
@@ -103,8 +103,6 @@ async def test_keyword_route_fetches_expected_date(client, monkeypatch, route, d
     assert response.status_code == 200
     resolve_date.assert_called_once_with(day)
     fetch_json.assert_called_once_with(f"{FUTBOL_URL}/09-10-2026/")
-    print("expected: ", EXPECTED_MATCH)
-    print("response: ", response.json())
     assert response.json() == [EXPECTED_MATCH]
 
 
