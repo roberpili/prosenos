@@ -9,7 +9,6 @@ from app.services.poller import poll_live
 
 
 def _to_futbol_scraper_game(match: FutbolMatch) -> FutbolScraperGame:
-    print("to futbol scraper game kickoff", match.kickoff)
     return FutbolScraperGame(
         id=match.id,
         league=match.league,

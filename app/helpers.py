@@ -1,11 +1,10 @@
-import os
 from collections.abc import Sequence
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, timedelta
 from typing import cast
 
 from fastapi import HTTPException, status
 
-from app.constants import ARGENTINA_TZ
+from app.constants import SOURCE_TZ
 from app.domain.schemas.data import FutbolTeam
 
 _DATE_FORMAT = "%d-%m-%Y"
@@ -40,21 +39,15 @@ def parse_nba_kickoff(value: str) -> datetime:
 
 
 def parse_futbol_kickoff(value: str) -> datetime:
-    print(f"backend raw: {value!r}")
-    print(f"system tz: {time.tzname}, TZ env: {os.environ.get('TZ')!r}")
-    print(f"ARGENTINA_TZ: {ARGENTINA_TZ!r}")
-
-    naive = datetime.strptime(value, "%d-%m-%Y %H:%M")
-    local = naive.replace(tzinfo=ARGENTINA_TZ)
-    print(f"parsed local: {local.isoformat()} (offset {local.utcoffset()})")
-
-    utc_result = local.astimezone(UTC)
-    print(f"parsed utc: {utc_result.isoformat()}")
-    return utc_result
+    return (
+        datetime.strptime(value, "%d-%m-%Y %H:%M")
+        .replace(tzinfo=SOURCE_TZ)
+        .astimezone(UTC)
+    )
 
 
 def resolve_date(day: str) -> date:
-    today = datetime.now(ARGENTINA_TZ).date()
+    today = datetime.now(SOURCE_TZ).date()
     offsets = {"yesterday": -1, "today": 0, "tomorrow": 1}
 
     if day in offsets:

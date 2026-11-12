@@ -1,6 +1,7 @@
+import os
 from zoneinfo import ZoneInfo
 
-ARGENTINA_TZ = ZoneInfo("America/Argentina/Buenos_Aires")
+SOURCE_TZ = ZoneInfo(os.environ.get("SOURCE_TZ", "America/Argentina/Buenos_Aires"))
 
 
 LEAGUES = {
