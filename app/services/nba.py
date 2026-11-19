@@ -1,17 +1,16 @@
 import asyncio
 import logging
 
-from app.core.nba import get_nba_matches_by_date
+from app.core.nba import fetch_nba_leaderboard, get_nba_matches_by_date
 from app.domain.enums import Sport
 from app.domain.schemas.game import NBAScraperGame
+from app.domain.schemas.leaderboard import NBAStandings
 from app.domain.schemas.match import NBAMatch
 from app.helpers import resolve_date
 from app.services.poller import poll_live
 
 logger = logging.getLogger(__name__)
 POLL_INTERVAL = 15
-
-_DATE_FORMAT = "%d-%m-%Y"
 
 
 def _to_nba_scraper_game(match: NBAMatch) -> NBAScraperGame:
@@ -38,3 +37,7 @@ async def get_nba_matches(day: str) -> list[NBAScraperGame]:
 
 async def poll_live_nba_matches() -> None:
     await poll_live(Sport.NBA, lambda: get_nba_matches("today"))
+
+
+async def get_nba_leaderboard() -> NBAStandings:
+    return await asyncio.to_thread(fetch_nba_leaderboard)
