@@ -19,6 +19,11 @@ NBA_URL = os.getenv("SCRAPE_NBA_URL")
 if not NBA_URL:
     raise ValueError("SCRAPE_NBA_URL environment variable not set")
 
+_nba_leaderboard_url = os.getenv("NBA_LEADERBOARD_URL")
+if not _nba_leaderboard_url:
+    raise ValueError("NBA_LEADERBOARD_URL environment variable not set")
+NBA_LEADERBOARD_URL: str = _nba_leaderboard_url
+
 
 def build_date_url(match_date: date, sport: Sport) -> str:
     if sport == Sport.NBA:
