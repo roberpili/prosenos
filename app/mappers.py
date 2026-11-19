@@ -3,14 +3,22 @@ from typing import cast
 from app.constants import LEAGUES
 from app.domain.schemas.data import FutbolGameData, FutbolMatchesResponse
 from app.domain.schemas.game import ExternalNBAGame
+from app.domain.schemas.leaderboard import (
+    LeaderboardConference,
+    LeaderboardEntry,
+    NBAStandings,
+    NBAStandingTeam,
+)
 from app.domain.schemas.match import FutbolMatch, NBAMatch
 from app.helpers import (
     as_dict,
     format_league_name,
     format_scorers,
+    nba_default_logo,
     parse_futbol_kickoff,
     parse_nba_kickoff,
     score_to_int,
+    sort_nba_leaderboard,
     to_int_pair,
 )
 
@@ -77,3 +85,39 @@ def map_futbol_matches(data: FutbolMatchesResponse) -> list[FutbolMatch]:
 
 def map_nba_matches(games: list[ExternalNBAGame]) -> list[NBAMatch]:
     return [map_nba_match(game) for game in games]
+
+
+# leaderboard
+def map_nba_standing_team(entry: LeaderboardEntry) -> NBAStandingTeam:
+    team = entry["team"]
+    stats = {s["name"]: s for s in entry["stats"]}
+
+    def num(name: str) -> float:
+        return float(stats[name]["value"])
+
+    return NBAStandingTeam(
+        id=team["id"],
+        name=team["displayName"],
+        abbreviation=team["abbreviation"],
+        logo=nba_default_logo(team),
+        wins=int(num("wins")),
+        losses=int(num("losses")),
+        win_percentage=num("winPercent"),
+        games_behind=num("gamesBehind"),
+        streak=stats["streak"].get("displayValue", ""),
+    )
+
+
+def map_nba_leaderboard(conferences: list[LeaderboardConference]) -> NBAStandings:
+    conference_data = {
+        c["abbreviation"]: c["standings"]["entries"] for c in conferences
+    }
+
+    def build(entries: list[LeaderboardEntry]) -> list[NBAStandingTeam]:
+        ranked = sorted(entries, key=sort_nba_leaderboard, reverse=True)
+        return [map_nba_standing_team(entry) for entry in ranked]
+
+    return NBAStandings(
+        eastern_conference=build(conference_data["East"]),
+        western_conference=build(conference_data["West"]),
+    )

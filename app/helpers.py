@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 
 from app.constants import SOURCE_TZ
 from app.domain.schemas.data import FutbolTeam
+from app.domain.schemas.leaderboard import LeaderboardEntry, LeaderboardTeam
 
 _DATE_FORMAT = "%d-%m-%Y"
 
@@ -70,3 +71,23 @@ def as_dict(value: object) -> dict[str, object]:
 
 def score_to_int(value: object) -> int:
     return int(value) if isinstance(value, (str, int, float)) else 0
+
+
+# nba leaderboard
+def sort_nba_leaderboard(entry: LeaderboardEntry) -> tuple[float, float]:
+    stats = {s["name"]: s for s in entry["stats"]}
+
+    return (
+        stats["winPercent"]["value"],
+        stats["pointDifferential"]["value"],
+    )
+
+
+def nba_default_logo(team: LeaderboardTeam) -> str:
+    logos = team.get("logos") or []
+
+    for logo in logos:
+        if "default" in logo.get("rel", []):
+            return logo["href"]
+
+    return logos[0]["href"] if logos else ""
