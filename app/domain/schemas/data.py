@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from app.domain.schemas.game import ExternalNBAGame
+from app.domain.schemas.leaderboard import LeaderboardConference
 
 
 # shared
@@ -61,3 +62,7 @@ class FutbolMatchesResponse(BaseModel):
 
 class NBAScoreboardResponse(BaseModel):
     events: list[ExternalNBAGame] = Field(default_factory=list)
+
+
+class NBALeaderboardResponse(BaseModel):
+    children: list[LeaderboardConference] = Field(default_factory=list)
