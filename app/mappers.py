@@ -93,7 +93,7 @@ def map_nba_standing_team(entry: LeaderboardEntry) -> NBAStandingTeam:
     stats = {s["name"]: s for s in entry["stats"]}
 
     def num(name: str) -> float:
-        return float(stats[name]["value"])
+        return float(stats[name].get("value", ""))
 
     return NBAStandingTeam(
         id=team["id"],

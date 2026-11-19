@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from pydantic import BaseModel, Field
 
@@ -35,8 +35,8 @@ class LeaderboardTeam(TypedDict):
 
 class LeaderboardStat(TypedDict):
     name: str
-    value: float | int
-    displayValue: str
+    value: NotRequired[float | int]
+    displayValue: NotRequired[str]
 
 
 class LeaderboardEntry(TypedDict):
